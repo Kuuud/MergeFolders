@@ -8,8 +8,19 @@ $project = Join-Path $projectRoot 'src\MergeFolders\MergeFolders.csproj'
 $exe = Join-Path $InstallDirectory 'MergeFolders.exe'
 
 if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
-    throw 'The .NET 8 SDK is not installed. Install the .NET 8 SDK and run this script again.'
+    throw '未检测到 dotnet。请安装 .NET SDK 8、9 或 10 后重新运行。'
 }
+
+$dotnetVersionText = (& dotnet --version).Trim()
+try {
+    $dotnetMajor = [int]($dotnetVersionText.Split('.')[0])
+} catch {
+    throw "无法识别 dotnet SDK 版本：$dotnetVersionText"
+}
+if ($dotnetMajor -lt 8) {
+    throw "当前 dotnet SDK 为 $dotnetVersionText，需要 .NET 8 或更高版本。"
+}
+Write-Host "检测到 .NET SDK $dotnetVersionText"
 
 New-Item -ItemType Directory -Force -Path $InstallDirectory | Out-Null
 
