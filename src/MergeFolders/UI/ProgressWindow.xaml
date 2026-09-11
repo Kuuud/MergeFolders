@@ -1,0 +1,10 @@
+<Window x:Class="MergeFolders.UI.ProgressWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="正在合并" Height="180" Width="650" WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="18">
+    <TextBlock x:Name="Message" Text="准备中..."/>
+    <ProgressBar x:Name="Bar" Margin="0,12,0,0" Height="16" Maximum="100"/>
+    <TextBlock x:Name="Details" Margin="0,8,0,0" Foreground="#666"/>
+  </StackPanel>
+</Window>

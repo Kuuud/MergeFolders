@@ -1,0 +1,25 @@
+<Window x:Class="MergeFolders.UI.ConflictWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="发现同名项目" Width="620" Height="300"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+  <Grid Margin="18">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <TextBlock x:Name="TypeText" FontWeight="SemiBold" FontSize="17"/>
+    <StackPanel Grid.Row="1" Margin="0,12,0,8">
+      <TextBlock Text="源：" FontWeight="Bold"/>
+      <TextBlock x:Name="SourceText" TextWrapping="Wrap" Margin="0,2,0,8"/>
+      <TextBlock Text="目标：" FontWeight="Bold"/>
+      <TextBlock x:Name="DestinationText" TextWrapping="Wrap" Margin="0,2,0,0"/>
+    </StackPanel>
+    <CheckBox x:Name="ApplyAll" Grid.Row="2" Content="对此任务的后续冲突全部采用同一选择"/>
+    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+      <Button Content="覆盖" Click="Overwrite_Click"/>
+      <Button Content="跳过" Click="Skip_Click"/>
+      <Button Content="自动重命名" Click="Rename_Click"/>
+      <Button Content="取消" Click="Cancel_Click"/>
+    </StackPanel>
+  </Grid>
+</Window>
