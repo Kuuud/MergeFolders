@@ -57,3 +57,9 @@ HKCU\Software\Classes\Directory\shell\MergeFolders
 只要 rclone 是以 Windows mount 的形式提供路径，例如 `X:\`，程序按普通 Windows 文件系统访问即可，不依赖 rclone CLI。
 
 建议对重要数据首次使用“合并复制”，确认结果无误后再使用“合并移动”。
+
+
+### PowerShell / multi-selection notes
+
+The installer intentionally avoids PowerShell backtick line continuations so it works with Windows PowerShell 5.1 as well as PowerShell 7.
+The Shell verb is registered with `MultiSelectModel=Player` and passes positional arguments `%1` through `%100`, allowing legacy Shell verbs to receive multiple selected directories (up to the documented 100-item default limit).
