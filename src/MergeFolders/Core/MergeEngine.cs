@@ -41,8 +41,8 @@ public sealed class MergeEngine
             if (!Directory.Exists(source))
                 continue;
 
-            await MergeDirectoryContentsAsync(source, destination, options, stats, totalBytes,
-                ref currentBytes, progress, cancellationToken);
+            currentBytes = await MergeDirectoryContentsAsync(source, destination, options, stats, totalBytes,
+                currentBytes, progress, cancellationToken);
 
             if (options.Mode == CopyMode.Move && options.DeleteEmptySourceDirectories)
             {
@@ -53,13 +53,13 @@ public sealed class MergeEngine
         return stats;
     }
 
-    private async Task MergeDirectoryContentsAsync(
+    private async Task<long> MergeDirectoryContentsAsync(
         string sourceDirectory,
         string destinationDirectory,
         MergeOptions options,
         MergeStats stats,
         long totalBytes,
-        ref long currentBytes,
+        long currentBytes,
         IProgress<MergeProgress>? progress,
         CancellationToken cancellationToken)
     {
@@ -75,8 +75,8 @@ public sealed class MergeEngine
             if (!Directory.Exists(target))
             {
                 Directory.CreateDirectory(target);
-                await MergeDirectoryContentsAsync(directory, target, options, stats, totalBytes,
-                    ref currentBytes, progress, cancellationToken);
+                currentBytes = await MergeDirectoryContentsAsync(directory, target, options, stats, totalBytes,
+                    currentBytes, progress, cancellationToken);
                 if (options.Mode == CopyMode.Move) TryDeleteDirectoryAfterMove(directory, stats);
                 continue;
             }
@@ -91,15 +91,15 @@ public sealed class MergeEngine
                     target = GetUniqueDirectoryPath(target);
                     Directory.CreateDirectory(target);
                     stats.DirectoriesRenamed++;
-                    await MergeDirectoryContentsAsync(directory, target, options, stats, totalBytes,
-                        ref currentBytes, progress, cancellationToken);
+                    currentBytes = await MergeDirectoryContentsAsync(directory, target, options, stats, totalBytes,
+                        currentBytes, progress, cancellationToken);
                 }
                 else
                 {
                     File.Delete(target);
                     Directory.CreateDirectory(target);
-                    await MergeDirectoryContentsAsync(directory, target, options, stats, totalBytes,
-                        ref currentBytes, progress, cancellationToken);
+                    currentBytes = await MergeDirectoryContentsAsync(directory, target, options, stats, totalBytes,
+                        currentBytes, progress, cancellationToken);
                 }
                 if (options.Mode == CopyMode.Move) TryDeleteDirectoryAfterMove(directory, stats);
                 continue;
@@ -108,8 +108,8 @@ public sealed class MergeEngine
             // Same-name folders: merge recursively by default.
             if (options.DirectoryConflict == DirectoryConflictAction.Merge)
             {
-                await MergeDirectoryContentsAsync(directory, target, options, stats, totalBytes,
-                    ref currentBytes, progress, cancellationToken);
+                currentBytes = await MergeDirectoryContentsAsync(directory, target, options, stats, totalBytes,
+                    currentBytes, progress, cancellationToken);
                 if (options.Mode == CopyMode.Move) TryDeleteDirectoryAfterMove(directory, stats);
                 continue;
             }
@@ -122,8 +122,8 @@ public sealed class MergeEngine
                 target = GetUniqueDirectoryPath(target);
                 Directory.CreateDirectory(target);
                 stats.DirectoriesRenamed++;
-                await MergeDirectoryContentsAsync(directory, target, options, stats, totalBytes,
-                    ref currentBytes, progress, cancellationToken);
+                currentBytes = await MergeDirectoryContentsAsync(directory, target, options, stats, totalBytes,
+                    currentBytes, progress, cancellationToken);
             }
         }
 
@@ -135,7 +135,7 @@ public sealed class MergeEngine
 
             if (!File.Exists(target) && !Directory.Exists(target))
             {
-                await CopyFileAsync(file, target, options, stats, totalBytes, ref currentBytes, progress, cancellationToken);
+                currentBytes = await CopyFileAsync(file, target, options, stats, totalBytes, currentBytes, progress, cancellationToken);
                 continue;
             }
 
@@ -167,20 +167,21 @@ public sealed class MergeEngine
             }
 
             var existed = File.Exists(target);
-            await CopyFileAsync(file, target, options, stats, totalBytes, ref currentBytes, progress, cancellationToken, existed);
+            currentBytes = await CopyFileAsync(file, target, options, stats, totalBytes, currentBytes, progress, cancellationToken);
         }
+
+        return currentBytes;
     }
 
-    private static async Task CopyFileAsync(
+    private static async Task<long> CopyFileAsync(
         string source,
         string target,
         MergeOptions options,
         MergeStats stats,
         long totalBytes,
-        ref long currentBytes,
+        long currentBytes,
         IProgress<MergeProgress>? progress,
-        CancellationToken cancellationToken,
-        bool overwriting = false)
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -238,6 +239,8 @@ public sealed class MergeEngine
             stats.Errors.Add($"{source} -> {target}: {ex.Message}");
             throw;
         }
+
+        return currentBytes;
     }
 
     private static async Task<byte[]> Sha256Async(string path, CancellationToken ct)

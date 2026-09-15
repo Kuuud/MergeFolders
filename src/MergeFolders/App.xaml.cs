@@ -1,14 +1,13 @@
-using System.Windows;
 using MergeFolders.Infrastructure;
 
 namespace MergeFolders;
 
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     public static IReadOnlyList<string> InitialPaths { get; internal set; } = Array.Empty<string>();
     public static SingleInstanceCoordinator? Coordinator { get; private set; }
 
-    protected override async void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(System.Windows.StartupEventArgs e)
     {
         base.OnStartup(e);
 
@@ -32,7 +31,7 @@ public partial class App : Application
         window.Show();
     }
 
-    protected override void OnExit(ExitEventArgs e)
+    protected override void OnExit(System.Windows.ExitEventArgs e)
     {
         Coordinator?.Dispose();
         base.OnExit(e);
