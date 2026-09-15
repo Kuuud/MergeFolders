@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using MessageBox = System.Windows.MessageBox;
 using MergeFolders.Core;
 
 namespace MergeFolders.UI;
